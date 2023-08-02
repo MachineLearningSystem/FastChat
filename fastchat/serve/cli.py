@@ -3,7 +3,7 @@ Chat with a model with command line interface.
 
 Usage:
 python3 -m fastchat.serve.cli --model lmsys/vicuna-7b-v1.3
-python3 -m fastchat.serve.cli --model lmsys/fastchat-t5-3b-v1.0
+python3 -m fastchat.serve.cli --model lmsys/fastchat-t5-3b-v1.0 --style simple
 
 Other commands:
 - Type "!!exit" or an empty line to exit.
@@ -253,4 +253,5 @@ if __name__ == "__main__":
         help="Print useful debug information (e.g., prompts)",
     )
     args = parser.parse_args()
+    print("args.model_path:", args.model_path, ",args.style:", args.style)
     main(args)

@@ -75,21 +75,27 @@ def generate_stream(
     stop_str = params.get("stop", None)
     stop_token_ids = params.get("stop_token_ids", None) or []
     stop_token_ids.append(tokenizer.eos_token_id)
-
+    print("1 generate_stream, stop_token_ids:", stop_token_ids)
+    print("2 generate_stream, stop_str:", stop_str)
+    print("3 generate_stream, prompt:", prompt)
+    print("4 generate_stream, len_prompt:", len_prompt)
+    print("5 generate_stream, temperature:", temperature)
+    print("6 generate_stream, repetition_penalty:", repetition_penalty)
     logits_processor = prepare_logits_processor(
         temperature, repetition_penalty, top_p, top_k
     )
     input_ids = tokenizer(prompt).input_ids
-
+    print("7 generate_stream, model.config:", model.config)
     if model.config.is_encoder_decoder:
         max_src_len = context_len
     else:  # truncate
         max_src_len = context_len - max_new_tokens - 1
+    print("8 generate_stream, input_ids:", input_ids, ",model.config.is_encoder_decoder:", model.config.is_encoder_decoder,",max_src_len:",max_src_len)
 
     input_ids = input_ids[-max_src_len:]
     output_ids = list(input_ids)
     input_echo_len = len(input_ids)
-
+    print("8.1 generate_stream, input_ids:", input_ids.shape, ",len(output_ids:)", len(output_ids),",input_echo_len:",input_echo_len)
     if model.config.is_encoder_decoder:
         encoder_output = model.encoder(
             input_ids=torch.as_tensor([input_ids], device=device)
@@ -99,9 +105,11 @@ def generate_stream(
             dtype=torch.int64,
             device=device,
         )
+        print("9 generate_stream, encoder_output.shape:", encoder_output.shape, ",start_ids.shape:", start_ids.shape)
 
     past_key_values = out = None
     sent_interrupt = False
+    print("10 generate_stream, max_new_tokens:", max_new_tokens, ",stream_interval:", stream_interval, ",judge_sent_end:", judge_sent_end)
     for i in range(max_new_tokens):
         if i == 0:  # prefill
             if model.config.is_encoder_decoder:
@@ -301,7 +309,7 @@ def chat_loop(
         revision,
         debug,
     )
-    generate_stream_func = get_generate_stream_function(model, model_path)
+    generate_stream_func = get_generate_stream_function(model, model_path)#返回generate_stream函数
 
     model_type = str(type(model)).lower()
     is_t5 = "t5" in model_type
@@ -313,7 +321,7 @@ def chat_loop(
 
     # Set context length
     context_len = get_context_length(model.config)
-
+    print("generate_stream, context length:", context_len, ", conv_template:",conv_template)
     # Chat
     def new_chat():
         if conv_template:
@@ -348,7 +356,7 @@ def chat_loop(
 
         if is_codet5p:  # codet5p is a code completion model.
             prompt = inp
-
+        print("chat_loop, prompt:", prompt)
         gen_params = {
             "model": model_path,
             "prompt": prompt,

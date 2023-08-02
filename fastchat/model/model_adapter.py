@@ -236,7 +236,8 @@ def load_model(
     kwargs["revision"] = revision
 
     # Load model
-    model, tokenizer = adapter.load_model(model_path, kwargs)
+    print("load_model, the model_path is:", model_path, ", kwargs is:", kwargs)
+    model, tokenizer = adapter.load_model(model_path, kwargs)#load model 
 
     if (device == "cuda" and num_gpus == 1 and not cpu_offloading) or device in (
         "mps",
@@ -264,6 +265,7 @@ def get_generate_stream_function(model: torch.nn.Module, model_path: str):
     from fastchat.serve.inference import generate_stream
 
     model_type = str(type(model)).lower()
+    print("get_generate_stream_function: model_type:", model_type")
     is_chatglm = "chatglm" in model_type
     is_falcon = "rwforcausallm" in model_type
     is_codet5p = "codet5p" in model_type
